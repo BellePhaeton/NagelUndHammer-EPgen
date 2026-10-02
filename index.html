@@ -1,20 +1,20 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="ru">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>EDICT &amp; NAIL — Episode Brief Generator</title>
+<title>N Corp Episode File generator</title>
 <style>
   *{box-sizing:border-box;margin:0;padding:0;}
   body{background:#0a0a0b;color:#d6cfbd;font-family:"Courier New",Courier,monospace;padding:16px;}
+  ::placeholder{color:#5f594c;opacity:1;}
   .g-head{max-width:1500px;margin:0 auto 14px;display:flex;align-items:center;gap:14px;border:1px solid #2c2c2f;background:#101113;padding:14px 18px;}
   .g-head svg{width:40px;height:40px;color:#d6cfbd;flex:none;}
-  .g-head h1{font-family:Georgia,serif;font-size:1.1rem;letter-spacing:.3em;color:#e9e2cd;font-weight:600;}
+  .g-head h1{font-family:Georgia,serif;font-size:1.1rem;letter-spacing:.14em;color:#e9e2cd;font-weight:600;}
   .g-head small{display:block;letter-spacing:.18em;color:#8f8977;font-size:.6rem;margin-top:4px;}
   .g-head .form-no{margin-left:auto;font-size:.62rem;color:#7d7767;text-align:right;letter-spacing:.12em;line-height:1.7;}
   .g-wrap{max-width:1500px;margin:0 auto;display:grid;grid-template-columns:400px 1fr;gap:14px;align-items:start;}
   @media(max-width:1000px){.g-wrap{grid-template-columns:1fr;}}
-  /* ---- form panel ---- */
   .g-form{display:flex;flex-direction:column;gap:10px;}
   details{border:1px solid #2c2c2f;background:#101113;}
   summary{cursor:pointer;padding:10px 14px;font-size:.72rem;letter-spacing:.3em;color:#c29a3a;list-style:none;user-select:none;}
@@ -22,7 +22,6 @@
   details[open] summary::before{content:"− ";}
   summary::-webkit-details-marker{display:none;}
   .g-body{padding:4px 14px 14px;display:flex;flex-direction:column;gap:10px;}
-  label.f{display:block;font-size:.58rem;letter-spacing:.22em;color:#8f8977;margin-bottom:4px;}
   input[type=text],textarea,select{width:100%;background:#0b0c0d;border:1px solid #2c2c2f;color:#d6cfbd;
     font-family:inherit;font-size:.78rem;padding:8px 10px;outline:none;}
   input[type=text]:focus,textarea:focus,select:focus{border-color:#c29a3a;}
@@ -30,6 +29,7 @@
   input[type=color]{width:44px;height:28px;border:1px solid #2c2c2f;background:#0b0c0d;padding:2px;cursor:pointer;}
   .row2{display:flex;gap:10px;}
   .row2>div{flex:1;}
+  .f{display:block;font-size:.58rem;letter-spacing:.22em;color:#8f8977;margin-bottom:4px;}
   .accent-row{display:flex;align-items:center;gap:10px;font-size:.62rem;letter-spacing:.18em;color:#8f8977;}
   .list{display:flex;flex-direction:column;gap:8px;}
   .list-item{border:1px dashed #2c2c2f;padding:8px;display:flex;flex-direction:column;gap:8px;position:relative;}
@@ -42,9 +42,7 @@
     font-family:inherit;font-size:.62rem;letter-spacing:.2em;padding:6px 12px;}
   .add:hover{background:#162416;}
   .hint{font-size:.58rem;color:#6d685b;letter-spacing:.08em;line-height:1.6;}
-  /* ---- stage ---- */
-  .g-stage{position:sticky;top:14px;border:1px solid #2c2c2f;background:#101113;display:flex;flex-direction:column;min-height:80vh;}
-  @media(max-width:1000px){.g-stage{position:static;min-height:0;}}
+  .g-stage{border:1px solid #2c2c2f;background:#101113;display:flex;flex-direction:column;}
   .stage-bar{display:flex;align-items:center;gap:8px;padding:10px 12px;border-bottom:1px solid #2c2c2f;flex-wrap:wrap;}
   .tab{background:#0b0c0d;border:1px solid #2c2c2f;color:#8f8977;font-family:inherit;font-size:.66rem;
     letter-spacing:.24em;padding:8px 16px;cursor:pointer;}
@@ -56,10 +54,10 @@
   .abtn{background:#14161a;border:1px solid #3a3c3f;color:#e9e2cd;font-family:inherit;font-size:.64rem;
     letter-spacing:.2em;padding:8px 14px;cursor:pointer;}
   .abtn:hover{border-color:#c29a3a;color:#c29a3a;}
-  .view{flex:1;overflow:auto;padding:12px;}
+  .view{padding:12px;}
   #frameWrap{margin:0 auto;transition:max-width .25s ease;max-width:100%;}
-  #preview{width:100%;height:78vh;border:1px solid #000;background:#08080a;display:block;}
-  #codeOut{width:100%;height:78vh;background:#0b0c0d;color:#b9b3a1;border:1px solid #2c2c2f;
+  #preview{width:100%;min-height:200px;border:1px solid #000;background:#08080a;display:block;}
+  #codeOut{width:100%;height:70vh;background:#0b0c0d;color:#b9b3a1;border:1px solid #2c2c2f;
     font-family:inherit;font-size:.68rem;line-height:1.6;padding:12px;white-space:pre;overflow:auto;}
   .g-foot{max-width:1500px;margin:14px auto 0;text-align:center;font-size:.56rem;color:#6d685b;letter-spacing:.24em;line-height:2;}
 </style>
@@ -69,20 +67,20 @@
 <div class="g-head">
   <svg viewBox="0 0 64 64" aria-hidden="true"><g transform="rotate(45 32 32)" stroke="currentColor" stroke-width="4" fill="none"><rect x="22" y="11" width="20" height="9" fill="currentColor" stroke="none"/><line x1="32" y1="20" x2="32" y2="53"/></g><g transform="rotate(-45 32 32)" stroke="currentColor" stroke-width="3.5" fill="none"><line x1="25" y1="11" x2="39" y2="11"/><line x1="32" y1="11" x2="32" y2="47"/><path d="M30.25 47 L33.75 47 L32 54 Z" fill="currentColor" stroke="none"/></g></svg>
   <div>
-    <h1>BRIEF GENERATOR</h1>
-    <small>EDICT &amp; NAIL · EPISODE FILE CONSTRUCTOR</small>
+    <h1>N Corp Episode File generator</h1>
+    <small>КОНСТРУКТОР ФАЙЛОВ ЭПИЗОДОВ · КОРПОРАЦИЯ «N»</small>
   </div>
-  <div class="form-no">FORM 22-G<br>FILL ALL FIELDS</div>
+  <div class="form-no">ФОРМА 22-G<br>ЗАПОЛНИТЕ ВСЕ ПОЛЯ</div>
 </div>
 
 <div class="g-wrap">
-<!-- ═══════════ FORM ═══════════ -->
+<!-- ═══════════ ФОРМА ═══════════ -->
 <div class="g-form" id="form">
 
   <details open>
-    <summary>THEME</summary>
+    <summary>ТЕМА</summary>
     <div class="g-body">
-      <div><label class="f">PRESET</label>
+      <div><span class="f">ПРЕСЕТ</span>
         <select data-key="preset" id="presetSel">
           <option value="standard">BUREAU STANDARD — ash &amp; bone</option>
           <option value="ledger">BLOOD LEDGER — maroon &amp; rust</option>
@@ -91,130 +89,132 @@
           <option value="verdigris">VERDIGRIS VAULT — oxidized green</option>
         </select>
       </div>
-      <div class="accent-row"><span>DANGER ACCENT</span><input type="color" id="redPick" value="#a02229"></div>
-      <div class="accent-row"><span>WARNING ACCENT</span><input type="color" id="yelPick" value="#c29a3a"></div>
-      <p class="hint">Switching preset resets accents. Tweak them after if needed.</p>
+      <div class="accent-row"><span>ОПАСНОСТЬ</span><input type="color" id="redPick" value="#a02229"></div>
+      <div class="accent-row"><span>ПРЕДУПРЕЖДЕНИЕ</span><input type="color" id="yelPick" value="#c29a3a"></div>
+      <p class="hint">Смена пресета сбрасывает оба акцента. Дальше можно настроить вручную — свечения, штампы и значки кнопок пересчитаются сами.</p>
     </div>
   </details>
 
   <details open>
-    <summary>HEADER</summary>
+    <summary>ШАПКА</summary>
     <div class="g-body">
-      <div><label class="f">DOCUMENT TITLE</label><input type="text" data-key="header.title"></div>
-      <div><label class="f">ORGANIZATION LINE</label><input type="text" data-key="header.sub"></div>
+      <input type="text" data-key="header.title" placeholder="Название документа, напр.: ФАЙЛ ЭПИЗОДА">
+      <input type="text" data-key="header.sub" placeholder="Организация / отдел, напр.: КОРПОРАЦИЯ «N» · БЮРО ОБЯЗАТЕЛЬНОГО ТРУДА">
       <div class="row2">
-        <div><label class="f">FILE Nº</label><input type="text" data-key="header.fileno"></div>
-        <div><label class="f">CLEARANCE</label><input type="text" data-key="header.clearance"></div>
+        <div><input type="text" data-key="header.fileno" placeholder="Номер дела, напр.: ФАЙЛ № 1004-88-Δ"></div>
+        <div><input type="text" data-key="header.clearance" placeholder="Допуск, напр.: ДОПУСК: VII"></div>
       </div>
     </div>
   </details>
 
   <details open>
-    <summary>STAMP</summary>
+    <summary>ШТАМП</summary>
     <div class="g-body">
-      <div><label class="f">TEXT (empty = no stamp)</label><input type="text" data-key="stamp.text"></div>
-      <div><label class="f">INK</label>
+      <input type="text" data-key="stamp.text" placeholder="Текст штампа, напр.: В РАБОТЕ · оставить пустым = штампа не будет">
+      <div><span class="f">ЦВЕТ ЧЕРНИЛ</span>
         <select data-key="stamp.style">
-          <option value="progress">OLIVE — in progress</option>
-          <option value="red">RED — terminated</option>
+          <option value="progress">ОЛИВКОВЫЙ — в процессе</option>
+          <option value="red">КРАСНЫЙ — завершено / закрыто</option>
         </select>
       </div>
     </div>
   </details>
 
   <details open>
-    <summary>EPISODE SCREEN</summary>
+    <summary>ЭКРАН ЭПИЗОДА (кнопка «Молот»)</summary>
     <div class="g-body">
-      <div><label class="f">KICKER</label><input type="text" data-key="ep.kicker"></div>
-      <div><label class="f">TITLE</label><input type="text" data-key="ep.title"></div>
-      <div><label class="f">PICTURE — DIRECT URL (empty = placeholder)</label><input type="text" data-key="ep.img" placeholder="https://..."></div>
+      <input type="text" data-key="ep.kicker" placeholder="Надзаголовок, напр.: ЭПИЗОД 01 · БРИФИНГ">
+      <input type="text" data-key="ep.title" placeholder="Название эпизода, напр.: ДВЕРЬ, КОТОРОЙ НЕ БЫЛО">
+      <input type="text" data-key="ep.img" placeholder="Прямая ссылка на картинку https://… · пусто = заглушка">
       <div>
-        <label class="f">INFO ROWS (empty value = redacted bar)</label>
+        <span class="f">СТРОКИ СВЕДЕНИЙ</span>
         <div class="list" id="metaList"></div>
-        <button type="button" class="add" data-act="add-meta">+ ADD ROW</button>
+        <button type="button" class="add" data-act="add-meta">+ ДОБАВИТЬ СТРОКУ</button>
       </div>
-      <div><label class="f">DESCRIPTION</label><textarea data-key="ep.desc"></textarea></div>
-      <div><label class="f">QUOTE (empty = no quote block)</label><textarea data-key="ep.quote"></textarea></div>
-      <div><label class="f">QUOTE SOURCE</label><input type="text" data-key="ep.quoteSrc"></div>
+      <textarea data-key="ep.desc" placeholder="Описание эпизода: что произошло, куда направлен персонал, особые указания бюро…"></textarea>
+      <textarea data-key="ep.quote" placeholder="Тематическая цитата или музыкальная тема эпизода · пусто = блок скрыт"></textarea>
+      <input type="text" data-key="ep.quoteSrc" placeholder="Источник цитаты, напр.: — НАСТАВЛЕНИЕ ДЛЯ НОВЫХ, СТР. 7">
       <div class="row2">
-        <div><label class="f">RECORDS VIEW HEADER (nail)</label><input type="text" data-key="ep.dgHead"></div>
-        <div><label class="f">RECORDS VIEW FOOTER</label><input type="text" data-key="ep.dgFoot"></div>
+        <div><input type="text" data-key="ep.dgHead" placeholder="Заголовок экрана «Гвоздь», напр.: ЛИЧНЫЕ ДЕЛА // ТЕРМИНАЛ 11-C"></div>
+        <div><input type="text" data-key="ep.dgFoot" placeholder="Подвал экрана «Гвоздь», напр.: КОНЕЦ ЗАПИСЕЙ"></div>
       </div>
     </div>
   </details>
 
   <details open>
-    <summary>CHARACTER 1</summary>
+    <summary>УДОСТОВЕРЕНИЕ 1 · КОРРЕКТИРОВЩИК</summary>
     <div class="g-body" data-char="0">
       <div class="row2">
-        <div><label class="f">FILE Nº</label><input type="text" data-key="chars.0.num"></div>
-        <div><label class="f">NAME</label><input type="text" data-key="chars.0.name"></div>
+        <div><input type="text" data-key="chars.0.num" placeholder="Номер дела, напр.: № ████-01"></div>
+        <div><input type="text" data-key="chars.0.name" placeholder="Позывной / имя, напр.: SLEDGE-01 · «Юра»"></div>
       </div>
-      <div><label class="f">PHOTO — DIRECT URL</label><input type="text" data-key="chars.0.img" placeholder="https://..."></div>
+      <input type="text" data-key="chars.0.img" placeholder="Прямая ссылка на фото https://… · пусто = заглушка">
       <div>
-        <label class="f">FILE ROWS (empty value = redacted bar)</label>
+        <span class="f">СТРОКИ УДОСТОВЕРЕНИЯ</span>
         <div class="list" data-rows="0"></div>
-        <button type="button" class="add" data-act="add-row-0">+ ADD ROW</button>
+        <button type="button" class="add" data-act="add-row-0">+ ДОБАВИТЬ СТРОКУ</button>
       </div>
-      <div><label class="f">NOTE</label><textarea data-key="chars.0.note"></textarea></div>
-      <div><label class="f">SEAL (empty = none)</label><input type="text" data-key="chars.0.seal"></div>
+      <textarea data-key="chars.0.note" placeholder="Характерная цитата или примета персонажа, напр.: «Считает удары вслух»"></textarea>
+      <input type="text" data-key="chars.0.seal" placeholder="Печать, напр.: ДОПУЩЕН · пусто = без печати">
     </div>
   </details>
 
   <details open>
-    <summary>CHARACTER 2</summary>
+    <summary>УДОСТОВЕРЕНИЕ 2 · КОРРЕКТИРОВЩИК</summary>
     <div class="g-body" data-char="1">
       <div class="row2">
-        <div><label class="f">FILE Nº</label><input type="text" data-key="chars.1.num"></div>
-        <div><label class="f">NAME</label><input type="text" data-key="chars.1.name"></div>
+        <div><input type="text" data-key="chars.1.num" placeholder="Номер дела, напр.: № ████-09"></div>
+        <div><input type="text" data-key="chars.1.name" placeholder="Позывной / имя, напр.: NAIL-09 · «Мир»"></div>
       </div>
-      <div><label class="f">PHOTO — DIRECT URL</label><input type="text" data-key="chars.1.img" placeholder="https://..."></div>
+      <input type="text" data-key="chars.1.img" placeholder="Прямая ссылка на фото https://… · пусто = заглушка">
       <div>
-        <label class="f">FILE ROWS (empty value = redacted bar)</label>
+        <span class="f">СТРОКИ УДОСТОВЕРЕНИЯ</span>
         <div class="list" data-rows="1"></div>
-        <button type="button" class="add" data-act="add-row-1">+ ADD ROW</button>
+        <button type="button" class="add" data-act="add-row-1">+ ДОБАВИТЬ СТРОКУ</button>
       </div>
-      <div><label class="f">NOTE</label><textarea data-key="chars.1.note"></textarea></div>
-      <div><label class="f">SEAL (empty = none)</label><input type="text" data-key="chars.1.seal"></div>
+      <textarea data-key="chars.1.note" placeholder="Характерная цитата или примета персонажа"></textarea>
+      <input type="text" data-key="chars.1.seal" placeholder="Печать, напр.: ДОПУЩЕН · пусто = без печати">
     </div>
   </details>
 
   <details>
-    <summary>FOOTER &amp; OUTPUT</summary>
+    <summary>ПОДВАЛ И ВЫВОД</summary>
     <div class="g-body">
-      <div><label class="f">FOOTER LINE 1</label><input type="text" data-key="foot.l1"></div>
-      <div><label class="f">FOOTER LINE 2</label><input type="text" data-key="foot.l2"></div>
+      <input type="text" data-key="foot.l1" placeholder="Строка 1, напр.: ВСЕ ВЫХОДЫ КОНЕЧНЫ · СЕКТОР 11">
+      <input type="text" data-key="foot.l2" placeholder="Строка 2, напр.: НЕПОСЛУШАНИЕ РЕГИСТРИРУЕТСЯ. РЕГИСТРИРУЕТСЯ.">
       <div class="row2">
-        <div><label class="f">UNIQUE SWITCH CODE (per post)</label><input type="text" data-key="code" id="codeIn" maxlength="6"></div>
-        <div style="align-self:flex-end;"><button type="button" class="abtn" id="reroll">REROLL</button></div>
+        <div><input type="text" data-key="code" id="codeIn" maxlength="6" placeholder="Код переключателя"></div>
+        <div style="align-self:flex-end;"><button type="button" class="abtn" id="reroll">СМЕНИТЬ</button></div>
       </div>
-      <p class="hint">Each brief on the same page needs its own code, or the screen buttons will override each other.</p>
+      <p class="hint">Код нужен, чтобы кнопки экранов разных постов на одной странице не переключали друг друга. В скопированном коде экран по умолчанию — «Молот».</p>
     </div>
   </details>
 
 </div>
 
-<!-- ═══════════ STAGE ═══════════ -->
+<!-- ═══════════ СЦЕНА ═══════════ -->
 <div class="g-stage">
   <div class="stage-bar">
-    <button type="button" class="tab on" id="tabPrev">PREVIEW</button>
-    <button type="button" class="tab" id="tabCode">CODE</button>
+    <button type="button" class="tab on" id="tabPrev">ПРЕВЬЮ</button>
+    <button type="button" class="tab" id="tabCode">КОД</button>
     <span class="spacer"></span>
-    <button type="button" class="wbtn on" data-w="0">DESKTOP</button>
-    <button type="button" class="wbtn" data-w="820">TABLET</button>
-    <button type="button" class="wbtn" data-w="400">PHONE</button>
-    <button type="button" class="abtn" id="btnCopy">COPY CODE</button>
-    <button type="button" class="abtn" id="btnDl">DOWNLOAD</button>
+    <button type="button" class="abtn" id="btnDemo">ПРИМЕР</button>
+    <button type="button" class="abtn" id="btnClear">СБРОС</button>
+    <button type="button" class="wbtn on" data-w="0">ДЕСКТОП</button>
+    <button type="button" class="wbtn" data-w="820">ПЛАНШЕТ</button>
+    <button type="button" class="wbtn" data-w="400">ТЕЛЕФОН</button>
+    <button type="button" class="abtn" id="btnCopy">КОПИРОВАТЬ</button>
+    <button type="button" class="abtn" id="btnDl">СКАЧАТЬ</button>
   </div>
-  <div class="view" id="viewPrev"><div id="frameWrap"><iframe id="preview" title="preview"></iframe></div></div>
+  <div class="view" id="viewPrev"><div id="frameWrap"><iframe id="preview" title="превью"></iframe></div></div>
   <div class="view" id="viewCode" style="display:none;"><textarea id="codeOut" readonly spellcheck="false"></textarea></div>
 </div>
 </div>
 
-<div class="g-foot">FORM 22-G · ANY FALSE DATA WILL BE PROCESSED · COMPLIANCE IS GRATITUDE</div>
+<div class="g-foot">ФОРМА 22-G · ЛЮБЫЕ ЛОЖНЫЕ ДАННЫЕ БУДУТ ОБРАБОТАНЫ · ПОСЛУШАНИЕ — БЛАГОДАРНОСТЬ</div>
 
 <script>
-/* ═══════════ THEMES ═══════════ */
+/* ═══════════ ТЕМЫ ═══════════ */
 const PRESETS = {
   standard:{bg1:"#0e0e10",bg2:"#1a1b1d",bg3:"#111113",bone:"#d6cfbd",cream:"#e9e2cd",ink:"#18120d",
     inkSoft:"#2a2118",quote:"#3d3120",scrMuted:"#6d6250",line:"#3a3a3d",dotline:"#45423a",
@@ -253,32 +253,43 @@ const PRESETS = {
     note:"#b4c5b8",tapeDark:"#0f1712"}
 };
 
-/* ═══════════ DEFAULT STATE ═══════════ */
+/* ═══════════ СОСТОЯНИЕ ═══════════ */
 function randCode(){const c="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let s="";for(let i=0;i<4;i++)s+=c[Math.floor(Math.random()*c.length)];return s;}
-const state = {
+function emptyState(){return{
   preset:"standard", red:"#a02229", yellow:"#c29a3a",
-  header:{title:"EPISODE FILE", sub:"BUREAU OF MANDATORY LABOR · SECTOR 11", fileno:"FILE Nº 1004-88-Δ", clearance:"CLEARANCE: VII"},
-  stamp:{text:"IN PROGRESS", style:"progress"},
-  ep:{kicker:"EPISODE 01 · BRIEFING", title:"THE DOOR THAT WAS NOT A DOOR", img:"",
-    metas:[
-      {l:"LOCATION", v:"Sector 11 — Forgotten Wing, Sublevel 3"},
-      {l:"MUSIC THEME", v:"\"Machinery of Confession\" — Kaliya Grain"},
-      {l:"THREAT LEVEL", v:"Δ (registered) · queries exceed quota"}],
-    desc:"The wing was sealed in the previous fiscal quarter. Yesterday, the seal reported foot traffic. Assigned personnel are to breach the eastern partition, verify the anomaly, and file Form 22-B before withdrawal. Do not use the western corridor. The western corridor is not a corridor. It has been briefed accordingly.",
-    quote:"\"Every wall is a door that has not yet been briefed.\"", quoteSrc:"— ORIENTATION PAMPHLET, P.7",
-    dgHead:"PERSONNEL RECORDS // TERMINAL 11-C", dgFoot:"END OF RECORDS"},
+  header:{title:"",sub:"",fileno:"",clearance:""},
+  stamp:{text:"",style:"progress"},
+  ep:{kicker:"",title:"",img:"",metas:[],desc:"",quote:"",quoteSrc:"",dgHead:"",dgFoot:""},
   chars:[
-    {num:"Nº ▮▮▮▮-01", name:"SLEDGE-01 · \"Yura\"", img:"", seal:"CLEARED",
-     note:"\"She counts swing seven out loud. Nobody knows why. Nobody asks.\"",
-     rows:[{l:"CLASS",v:"Strike Fixer"},{l:"AFFILIATION",v:"Edict & Nail Office"},{l:"STATUS",v:"Active · swings logged"},{l:"HANDLER",v:"@PlayerName"}]},
-    {num:"Nº ▮▮▮▮-09", name:"NAIL-09 · \"Mier\"", img:"", seal:"CLEARED",
-     note:"\"Filed 412 forms today. One of them was a confession. Still counts.\"",
-     rows:[{l:"CLASS",v:"Support / Records"},{l:"AFFILIATION",v:"Edict & Nail Office"},{l:"STATUS",v:""},{l:"HANDLER",v:"@PlayerName"}]}],
-  foot:{l1:"ALL EXITS FINAL · SECTOR 11 BUREAU OF MANDATORY LABOR", l2:"NON-COMPLIANCE IS RECORDED. RECORDED IS RECORDED."},
+    {num:"",name:"",img:"",seal:"",note:"",rows:[{l:"",v:""},{l:"",v:""},{l:"",v:""}]},
+    {num:"",name:"",img:"",seal:"",note:"",rows:[{l:"",v:""},{l:"",v:""},{l:"",v:""}]}],
+  foot:{l1:"",l2:""},
   code:randCode()
+};}
+const state = emptyState();
+
+const DEMO = {
+  header:{title:"ФАЙЛ ЭПИЗОДА",sub:"КОРПОРАЦИЯ «N» · БЮРО ОБЯЗАТЕЛЬНОГО ТРУДА",fileno:"ФАЙЛ № 1004-88-Δ",clearance:"ДОПУСК: VII"},
+  stamp:{text:"В РАБОТЕ",style:"progress"},
+  ep:{kicker:"ЭПИЗОД 01 · БРИФИНГ",title:"ДВЕРЬ, КОТОРОЙ НЕ БЫЛО",img:"",
+    metas:[
+      {l:"ЛОКАЦИЯ",v:"Сектор 11 — Забытое крыло, уровень −3"},
+      {l:"МУЗЫКАЛЬНАЯ ТЕМА",v:"«Исповедь механизмов» — Kaliya Grain"},
+      {l:"УРОВЕНЬ УГРОЗЫ",v:"Δ (зарегистрирован) · запросы превышают квоту"}],
+    desc:"Крыло было опечатано в прошлом квартале. Вчера печать сообщила о движении. Назначенный персонал должен вскрыть восточную перегородку, подтвердить аномалию и оформить Форму 22-B до отхода. Западным коридором не пользоваться. Западный коридор — не коридор. Он проинструктирован соответствующим образом.",
+    quote:"«Каждая стена — это дверь, которую ещё не проинструктировали.»",quoteSrc:"— НАСТАВЛЕНИЕ ДЛЯ НОВЫХ, СТР. 7",
+    dgHead:"ЛИЧНЫЕ ДЕЛА // ТЕРМИНАЛ 11-C",dgFoot:"КОНЕЦ ЗАПИСЕЙ"},
+  chars:[
+    {num:"№ ████-01",name:"SLEDGE-01 · «Юра»",img:"",seal:"ДОПУЩЕН",
+     note:"«Она считает удары вслух. Седьмой — обязательно. Никто не спрашивает почему.»",
+     rows:[{l:"КЛАСС",v:"Ударный фиксер"},{l:"ПРИНАДЛЕЖНОСТЬ",v:"Офис «Эдикт и Гвоздь»"},{l:"СТАТУС",v:"Активен · замеры зафиксированы"},{l:"КУРАТОР",v:"@ИмяИгрока"}]},
+    {num:"№ ████-09",name:"NAIL-09 · «Мир»",img:"",seal:"ДОПУЩЕН",
+     note:"«Сегодня подано 412 заявлений. Одно было исповедью. Всё по форме.»",
+     rows:[{l:"КЛАСС",v:"Поддержка / Архив"},{l:"ПРИНАДЛЕЖНОСТЬ",v:"Офис «Эдикт и Гвоздь»"},{l:"СТАТУС",v:""},{l:"КУРАТОР",v:"@ИмяИгрока"}]}],
+  foot:{l1:"ВСЕ ВЫХОДЫ КОНЕЧНЫ · СЕКТОР 11",l2:"НЕПОСЛУШАНИЕ РЕГИСТРИРУЕТСЯ. РЕГИСТРИРУЕТСЯ."}
 };
 
-/* ═══════════ TEMPLATE CSS (variables injected separately) ═══════════ */
+/* ═══════════ CSS ШАБЛОНА ═══════════ */
 const CSS_BODY = `
 .bml-episode *,.bml-episode *::before,.bml-episode *::after{box-sizing:border-box;}
 .bml-episode h2,.bml-episode h3,.bml-episode p,.bml-episode figure{margin:0;}
@@ -341,7 +352,6 @@ const CSS_BODY = `
   border:3px double var(--bml-red);color:var(--bml-red);
   font-family:Georgia,serif;font-weight:700;letter-spacing:.26em;font-size:.9rem;padding:6px 12px;opacity:.85;}
 .bml-stamp.progress{border-color:var(--bml-yellow-dim);color:var(--bml-yellow-dim);}
-/* records overlay: fills the screen fixed by the briefing view, scrolls internally */
 .bml-view-digital{position:absolute;inset:0;z-index:1;overflow:auto;font-size:.8rem;
   padding:26px 28px 20px;scrollbar-width:thin;scrollbar-color:var(--bml-ink) transparent;}
 .bml-view-digital::-webkit-scrollbar{width:8px;}
@@ -368,7 +378,6 @@ const CSS_BODY = `
 .bml-dg-bottom{margin-top:16px;border-top:1px solid rgba(0,0,0,.4);padding-top:9px;text-align:center;letter-spacing:.34em;font-size:.6rem;color:var(--bml-scr-muted);}
 .bml-dg-caret{display:inline-block;width:7px;height:.95em;background:var(--bml-ink);vertical-align:-2px;margin-left:8px;animation:bml-blink 1.1s steps(1) infinite;}
 @keyframes bml-blink{50%{opacity:0;}}
-/* view switching: briefing stays in flow (invisible), records overlay on top */
 .bml-view-digital{display:none;}
 .bml-cast{display:none;}
 .bml-r-n:checked ~ .bml-crt .bml-view-episode{visibility:hidden;pointer-events:none;user-select:none;}
@@ -444,9 +453,10 @@ const CSS_BODY = `
   .bml-cast{display:grid !important;grid-template-columns:1fr;}
   .bml-view-digital{display:none !important;}}
 @media (prefers-reduced-motion:reduce){
-  .bml-screen,.bml-screen::before,.bml-lamp.o,.bml-lamp.r,.bml-btn,.bml-dg-dot,.bml-dg-caret{animation:none !important;}}`;
+  .bml-screen,.bml-screen::before,.bml-lamp.o,.bml-lamp.r,.bml-btn,.bml-dg-dot,.bml-dg-caret{animation:none !important;}}
+`;
 
-/* ═══════════ HELPERS ═══════════ */
+/* ═══════════ ВСПОМОГАТЕЛЬНОЕ ═══════════ */
 const esc = s => String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;").replace(/'/g,"&#39;");
 function hexToRgba(hex,a){const h=hex.replace("#","");const n=parseInt(h,16);return `rgba(${(n>>16)&255},${(n>>8)&255},${n&255},${a})`;}
 function darken(hex,f){const h=hex.replace("#","");const n=parseInt(h,16);
@@ -455,13 +465,22 @@ function darken(hex,f){const h=hex.replace("#","");const n=parseInt(h,16);
 function getPath(o,p){return p.split(".").reduce((a,k)=>a?.[k],o);}
 function setPath(o,p,v){const ks=p.split(".");const last=ks.pop();let t=o;ks.forEach(k=>t=t[k]);t[last]=v;}
 
-const PH_EP = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='350'><rect width='800' height='350' fill='%23242528'/><rect x='8' y='8' width='784' height='334' fill='none' stroke='%233c3e42' stroke-dasharray='6 6'/><text x='400' y='180' fill='%23716c5e' font-family='monospace' font-size='18' text-anchor='middle'>VISUAL RECORD — REPLACE WITH IMAGE URL</text></svg>";
-const PH_CH = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='400'><rect width='300' height='400' fill='%23242528'/><rect x='6' y='6' width='288' height='388' fill='none' stroke='%233c3e42' stroke-dasharray='6 6'/><text x='150' y='205' fill='%23716c5e' font-family='monospace' font-size='14' text-anchor='middle'>PHOTO — REPLACE URL</text></svg>";
+const PH_EP = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='800' height='350'><rect width='800' height='350' fill='%23242528'/><rect x='8' y='8' width='784' height='334' fill='none' stroke='%233c3e42' stroke-dasharray='6 6'/><text x='400' y='180' fill='%23716c5e' font-family='monospace' font-size='18' text-anchor='middle'>ВИЗУАЛЬНАЯ ЗАПИСЬ — ВСТАВЬТЕ ССЫЛКУ</text></svg>";
+const PH_CH = "data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='400'><rect width='300' height='400' fill='%23242528'/><rect x='6' y='6' width='288' height='388' fill='none' stroke='%233c3e42' stroke-dasharray='6 6'/><text x='150' y='205' fill='%23716c5e' font-family='monospace' font-size='14' text-anchor='middle'>ФОТО — ВСТАВЬТЕ ССЫЛКУ</text></svg>";
 
 const CREST = `<svg viewBox="0 0 64 64" aria-hidden="true"><g transform="rotate(45 32 32)" stroke="currentColor" stroke-width="4" fill="none"><rect x="22" y="11" width="20" height="9" fill="currentColor" stroke="none"/><line x1="32" y1="20" x2="32" y2="53"/></g><g transform="rotate(-45 32 32)" stroke="currentColor" stroke-width="3.5" fill="none"><line x1="25" y1="11" x2="39" y2="11"/><line x1="32" y1="11" x2="32" y2="47"/><path d="M30.25 47 L33.75 47 L32 54 Z" fill="currentColor" stroke="none"/></g></svg>`;
 const WM = `<svg viewBox="0 0 64 64"><g transform="rotate(45 32 32)" stroke="currentColor" stroke-width="6" fill="none"><rect x="22" y="11" width="20" height="9" fill="currentColor"/><line x1="32" y1="20" x2="32" y2="53"/></g><g transform="rotate(-45 32 32)" stroke="currentColor" stroke-width="5" fill="none"><line x1="25" y1="11" x2="39" y2="11"/><line x1="32" y1="11" x2="32" y2="47"/><path d="M29.5 47 L34.5 47 L32 55 Z" fill="currentColor" stroke="none"/></g></svg>`;
 
-/* ═══════════ BUILDERS ═══════════ */
+/* скрипт внутри превью: растягивает iframe по высоте контента */
+const RO_JS = `<script>
+(function(){
+  var set=function(){var h=Math.ceil(Math.max(document.documentElement.scrollHeight,document.body.scrollHeight));try{parent.document.getElementById('preview').style.height=h+'px';}catch(e){}};
+  if(window.ResizeObserver){var ro=new ResizeObserver(set);ro.observe(document.body);ro.observe(document.documentElement);}
+  window.addEventListener('load',set);set();
+})();
+<\/script>`;
+
+/* ═══════════ СБОРКА ═══════════ */
 function buildVars(s){
   const p = PRESETS[s.preset];
   const red = s.red, yel = s.yellow;
@@ -486,14 +505,16 @@ function buildVars(s){
   ].join(";\n  ")+";";
 }
 
-function buildHTML(s){
+function buildHTML(s, view){
   const code = esc(s.code);
+  const chk = v => v===view ? " checked" : "";
   const stamp = s.stamp.text.trim()
     ? `\n      <div class="bml-stamp ${s.stamp.style==="progress"?"progress":""}">${esc(s.stamp.text)}</div>` : "";
-  const metas = s.ep.metas.map(m=>{
+  const metas = s.ep.metas.length ? s.ep.metas.map(m=>{
     const v = m.v.trim() ? esc(m.v) : '<span class="bml-dg-bar"></span>';
     return `<div class="bml-meta-row"><b>${esc(m.l)}</b><span>${v}</span></div>`;
-  }).join("\n          ");
+  }).join("\n          ") : "";
+  const metaBox = metas ? `\n        <div class="bml-meta">\n          ${metas}\n        </div>` : "";
   const quote = s.ep.quote.trim()
     ? `\n\n        <div class="bml-ep-quote">${esc(s.ep.quote)}${s.ep.quoteSrc.trim()?`\n          <small>${esc(s.ep.quoteSrc)}</small>`:""}</div>` : "";
 
@@ -515,15 +536,15 @@ function buildHTML(s){
   }).join("\n\n          ");
 
   const paperFiles = s.chars.map(c=>{
-    const rows = [`<div class="r"><b>DESIGNATION</b><span>${esc(c.name)}</span></div>`]
+    const rows = [`<div class="r"><b>ПОЗЫВНОЙ</b><span>${esc(c.name)}</span></div>`]
       .concat(c.rows.map(r=>{
         const v = r.v.trim() ? esc(r.v) : '<span class="bml-bar"></span>';
         return `<div class="r"><b>${esc(r.l)}</b><span>${v}</span></div>`;
       })).join("\n        ");
     return `<div class="bml-file">
-    <div class="bml-file-head"><span>PERSONNEL FILE</span><span>${esc(c.num)}</span></div>
+    <div class="bml-file-head"><span>ЛИЧНОЕ ДЕЛО</span><span>${esc(c.num)}</span></div>
     <div class="bml-file-body">
-      <div class="bml-photo"><img src="${c.img.trim()?esc(c.img):PH_CH}" alt="character photo"></div>
+      <div class="bml-photo"><img src="${c.img.trim()?esc(c.img):PH_CH}" alt="фото корректировщика"></div>
       <div class="bml-rows">
         ${rows}
       </div>
@@ -534,10 +555,9 @@ function buildHTML(s){
 
   return `<div class="bml-episode">
 
-<!-- VIEW SWITCH: hammer=briefing · nail=records · rope=full. Each posted brief needs a unique code. -->
-<input type="radio" name="bml-view-${code}" id="bml-v-h-${code}" class="bml-radio bml-r-h" checked>
-<input type="radio" name="bml-view-${code}" id="bml-v-n-${code}" class="bml-radio bml-r-n">
-<input type="radio" name="bml-view-${code}" id="bml-v-r-${code}" class="bml-radio bml-r-r">
+<input type="radio" name="bml-view-${code}" id="bml-v-h-${code}" class="bml-radio bml-r-h"${chk("h")}>
+<input type="radio" name="bml-view-${code}" id="bml-v-n-${code}" class="bml-radio bml-r-n"${chk("n")}>
+<input type="radio" name="bml-view-${code}" id="bml-v-r-${code}" class="bml-radio bml-r-r"${chk("r")}>
 
 <div class="bml-noise"></div>
 <div class="bml-strip"></div>
@@ -561,11 +581,7 @@ function buildHTML(s){
         <div class="bml-ep-kicker">${esc(s.ep.kicker)}</div>
         <h3 class="bml-ep-title">${esc(s.ep.title)}</h3>
 
-        <figure class="bml-ep-img"><img src="${s.ep.img.trim()?esc(s.ep.img):PH_EP}" alt="episode visual"></figure>
-
-        <div class="bml-meta">
-          ${metas}
-        </div>
+        <figure class="bml-ep-img"><img src="${s.ep.img.trim()?esc(s.ep.img):PH_EP}" alt="визуальная запись эпизода"></figure>${metaBox}
 
         <p class="bml-ep-desc">${esc(s.ep.desc)}</p>${quote}
       </div>
@@ -585,9 +601,9 @@ function buildHTML(s){
     </div>
 
     <div class="bml-controls">
-      <label class="bml-btn bml-btn-h" for="bml-v-h-${code}" title="BRIEFING"><svg viewBox="0 0 32 32"><rect class="ic-r1" x="6" y="8" width="20" height="7"/><line class="ic-s2" x1="16" y1="15" x2="16" y2="27"/></svg></label>
-      <label class="bml-btn bml-btn-n" for="bml-v-n-${code}" title="PERSONNEL"><svg viewBox="0 0 32 32"><line class="ic-s3" x1="9" y1="6" x2="23" y2="6"/><line class="ic-s3" x1="16" y1="6" x2="16" y2="24"/><path class="ic-f4" d="M14.5 24 L17.5 24 L16 29 Z"/></svg></label>
-      <label class="bml-btn bml-btn-r" for="bml-v-r-${code}" title="FULL FILE"><svg viewBox="0 0 32 32"><path class="ic-s5" d="M16 3 v5"/><ellipse class="ic-s5" cx="16" cy="10" rx="3.6" ry="2.6"/><circle class="ic-s5" cx="16" cy="19" r="6.4"/><path class="ic-s5" d="M22.4 19 c4 1.2 5 4.4 5 8.4"/></svg></label>
+      <label class="bml-btn bml-btn-h" for="bml-v-h-${code}" title="БРИФИНГ"><svg viewBox="0 0 32 32"><rect class="ic-r1" x="6" y="8" width="20" height="7"/><line class="ic-s2" x1="16" y1="15" x2="16" y2="27"/></svg></label>
+      <label class="bml-btn bml-btn-n" for="bml-v-n-${code}" title="ЛИЧНЫЕ ДЕЛА"><svg viewBox="0 0 32 32"><line class="ic-s3" x1="9" y1="6" x2="23" y2="6"/><line class="ic-s3" x1="16" y1="6" x2="16" y2="24"/><path class="ic-f4" d="M14.5 24 L17.5 24 L16 29 Z"/></svg></label>
+      <label class="bml-btn bml-btn-r" for="bml-v-r-${code}" title="ПОЛНОЕ ДЕЛО"><svg viewBox="0 0 32 32"><path class="ic-s5" d="M16 3 v5"/><ellipse class="ic-s5" cx="16" cy="10" rx="3.6" ry="2.6"/><circle class="ic-s5" cx="16" cy="19" r="6.4"/><path class="ic-s5" d="M22.4 19 c4 1.2 5 4.4 5 8.4"/></svg></label>
       <div class="bml-hazard"></div>
     </div>
   </div>
@@ -605,32 +621,43 @@ function buildHTML(s){
 </div>`;
 }
 
-/* ═══════════ RENDER LOOP ═══════════ */
+/* ═══════════ РЕНДЕР ═══════════ */
 const $ = id => document.getElementById(id);
 let out = "";
-function build(){
-  const css = `<style>\n.bml-episode{\n  ${buildVars(state)}\n}\n${CSS_BODY}</style>\n`;
-  out = css + buildHTML(state);
-  $("codeOut").value = out;
-  $("preview").srcdoc = `<!DOCTYPE html><html><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;padding:12px;background:#08080a;}</style></head><body>${out}</body></html>`;
-}
-let tm=null;
-const schedule = ()=>{clearTimeout(tm);tm=setTimeout(build,150);};
 
-/* ═══════════ FORM BINDING ═══════════ */
-document.getElementById("form").addEventListener("input", e=>{
+/* запомнить выбранный экран из текущего превью */
+function currentView(){
+  try{
+    const d = $("preview").contentDocument;
+    if(d && d.querySelector(".bml-r-n:checked")) return "n";
+    if(d && d.querySelector(".bml-r-r:checked")) return "r";
+  }catch(e){}
+  return "h";
+}
+
+function build(){
+  const view = currentView();
+  const css = `<style>\n.bml-episode{\n  ${buildVars(state)}\n}\n${CSS_BODY}</style>\n`;
+  out = css + buildHTML(state, "h"); /* копируемый код всегда стартует с «Молота» */
+  $("codeOut").value = out;
+  $("preview").srcdoc = `<!DOCTYPE html><html lang="ru"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><style>body{margin:0;padding:12px;background:#08080a;}</style></head><body>${css}${buildHTML(state, view)}${RO_JS}</body></html>`;
+}
+
+/* ═══════════ ФОРМА ═══════════ */
+/* пункт 5: обновление только по смене фокуса (событие change) */
+ $("form").addEventListener("change", e=>{
   const k = e.target.dataset.key;
   if(!k) return;
   if(k==="code"){ e.target.value = e.target.value.replace(/[^A-Za-z0-9]/g,"").toUpperCase(); }
   setPath(state,k,e.target.value);
-  schedule();
+  build();
 });
-document.getElementById("form").addEventListener("click", e=>{
+ $("form").addEventListener("click", e=>{
   const act = e.target.dataset.act;
   if(!act) return;
-  if(act==="add-meta"){ state.ep.metas.push({l:"LABEL",v:""}); renderMetas(); schedule(); }
+  if(act==="add-meta"){ state.ep.metas.push({l:"",v:""}); renderMetas(); build(); }
   const m = act.match(/^add-row-(\d)$/);
-  if(m){ state.chars[+m[1]].rows.push({l:"LABEL",v:""}); renderCharRows(+m[1]); schedule(); }
+  if(m){ state.chars[+m[1]].rows.push({l:"",v:""}); renderCharRows(+m[1]); build(); }
 });
 document.addEventListener("click", e=>{
   const d = e.target.closest("[data-del]");
@@ -638,14 +665,14 @@ document.addEventListener("click", e=>{
   const [kind,i,j] = d.dataset.del.split(",").map(Number);
   if(kind===0){ state.ep.metas.splice(j,1); renderMetas(); }
   else { state.chars[i].rows.splice(j,1); renderCharRows(i); }
-  schedule();
+  build();
 });
 
 function rowEditor(pathL, pathV, delData, lVal, vVal){
   return `<div class="list-item">
-    <button type="button" class="del" data-del="${delData}" title="remove">×</button>
-    <div class="pair"><input type="text" placeholder="LABEL" data-key="${pathL}" value="${esc(lVal)}"></div>
-    <input type="text" placeholder="VALUE — empty = redacted bar" data-key="${pathV}" value="${esc(vVal)}">
+    <button type="button" class="del" data-del="${delData}" title="удалить строку">×</button>
+    <div class="pair"><input type="text" placeholder="Метка (напр.: ЛОКАЦИЯ)" data-key="${pathL}" value="${esc(lVal)}"></div>
+    <input type="text" placeholder="Значение · пусто = чёрная плашка цензуры" data-key="${pathV}" value="${esc(vVal)}">
   </div>`;
 }
 function renderMetas(){
@@ -657,23 +684,37 @@ function renderCharRows(ci){
     rowEditor(`chars.${ci}.rows.${j}.l`,`chars.${ci}.rows.${j}.v`,`1,${ci},${j}`,r.l,r.v)).join("");
 }
 
-/* preset + accents */
+/* тема */
  $("presetSel").addEventListener("change", e=>{
+  e.stopPropagation(); /* чтобы общий обработчик не собирал дважды */
   state.preset = e.target.value;
   state.red = PRESETS[state.preset].red;
   state.yellow = PRESETS[state.preset].yellow;
   $("redPick").value = state.red; $("yelPick").value = state.yellow;
   build();
 });
- $("redPick").addEventListener("input", e=>{state.red=e.target.value;schedule();});
- $("yelPick").addEventListener("input", e=>{state.yellow=e.target.value;schedule();});
+ $("redPick").addEventListener("change", e=>{state.red=e.target.value;build();});
+ $("yelPick").addEventListener("change", e=>{state.yellow=e.target.value;build();});
 
-/* reroll code */
- $("reroll").addEventListener("click", ()=>{
-  state.code = randCode(); $("codeIn").value = state.code; build();
+/* код переключателя */
+ $("reroll").addEventListener("click", ()=>{ state.code = randCode(); $("codeIn").value = state.code; build(); });
+
+/* пример / сброс */
+ $("btnDemo").addEventListener("click", ()=>{
+  state.header = {...DEMO.header};
+  state.stamp = {...DEMO.stamp};
+  state.ep = {...DEMO.ep, metas: DEMO.ep.metas.map(m=>({...m}))};
+  state.chars = DEMO.chars.map(c=>({...c, rows:c.rows.map(r=>({...r}))}));
+  state.foot = {...DEMO.foot};
+  fillInputs(); build();
+});
+ $("btnClear").addEventListener("click", ()=>{
+  const code = state.code, preset = state.preset, red = state.red, yellow = state.yellow;
+  Object.assign(state, emptyState(), {code, preset, red, yellow});
+  fillInputs(); build();
 });
 
-/* tabs + width toggles */
+/* вкладки + ширина */
  $("tabPrev").addEventListener("click",()=>{$("tabPrev").classList.add("on");$("tabCode").classList.remove("on");$("viewPrev").style.display="";$("viewCode").style.display="none";});
  $("tabCode").addEventListener("click",()=>{$("tabCode").classList.add("on");$("tabPrev").classList.remove("on");$("viewCode").style.display="";$("viewPrev").style.display="none";});
 document.querySelectorAll(".wbtn").forEach(b=>b.addEventListener("click",()=>{
@@ -681,11 +722,11 @@ document.querySelectorAll(".wbtn").forEach(b=>b.addEventListener("click",()=>{
   $("frameWrap").style.maxWidth = b.dataset.w==="0" ? "100%" : b.dataset.w+"px";
 }));
 
-/* copy + download */
+/* копирование и скачивание */
  $("btnCopy").addEventListener("click", async ()=>{
   try{ await navigator.clipboard.writeText(out); }
   catch(_){ $("codeOut").select(); document.execCommand("copy"); }
-  const b=$("btnCopy"), t=b.textContent; b.textContent="COPIED ✓"; setTimeout(()=>b.textContent=t,1200);
+  const b=$("btnCopy"), t=b.textContent; b.textContent="СКОПИРОВАНО ✓"; setTimeout(()=>b.textContent=t,1200);
 });
  $("btnDl").addEventListener("click", ()=>{
   const blob = new Blob([out],{type:"text/html"});
@@ -695,7 +736,7 @@ document.querySelectorAll(".wbtn").forEach(b=>b.addEventListener("click",()=>{
   a.click(); URL.revokeObjectURL(a.href);
 });
 
-/* init */
+/* инициализация */
 function fillInputs(){
   document.querySelectorAll("[data-key]").forEach(el=>{
     const v = getPath(state, el.dataset.key);
